@@ -14,7 +14,9 @@ export type PatientFormData = {
   email: string;
   address: string;
   preferredLanguage: string;
+  preferredLanguageOther: string;
   nationality: string;
+  nationalityOther: string;
   emergencyContactName: string;
   emergencyContactRelationship: string;
   religion: string;
@@ -41,7 +43,9 @@ export const defaultPatientFormData: PatientFormData = {
   email: "",
   address: "",
   preferredLanguage: "",
+  preferredLanguageOther: "",
   nationality: "",
+  nationalityOther: "",
   emergencyContactName: "",
   emergencyContactRelationship: "",
   religion: ""
@@ -79,7 +83,9 @@ const labels: Record<keyof PatientFormData, string> = {
   email: "Email",
   address: "Address",
   preferredLanguage: "Preferred language",
+  preferredLanguageOther: "Specific preferred language",
   nationality: "Nationality",
+  nationalityOther: "Specific nationality",
   emergencyContactName: "Emergency contact name",
   emergencyContactRelationship: "Emergency contact relationship",
   religion: "Religion"
@@ -120,6 +126,33 @@ export function validatePatientForm(formData: PatientFormData) {
     if (!String(formData[field]).trim()) {
       errors[field] = `${labels[field]} is required.`;
     }
+  }
+
+  if (formData.dateOfBirth.trim()) {
+    const dobDate = new Date(formData.dateOfBirth);
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+
+    if (isNaN(dobDate.getTime())) {
+      errors.dateOfBirth = "Enter a valid date.";
+    } else if (dobDate > today) {
+      errors.dateOfBirth = "Date of birth cannot be in the future.";
+    } else {
+      const minDate = new Date();
+      minDate.setFullYear(minDate.getFullYear() - 120);
+      minDate.setHours(0, 0, 0, 0);
+      if (dobDate < minDate) {
+        errors.dateOfBirth = "Date of birth must be within the last 120 years.";
+      }
+    }
+  }
+
+  if (formData.preferredLanguage === "Other" && !formData.preferredLanguageOther.trim()) {
+    errors.preferredLanguageOther = "Please specify your preferred language.";
+  }
+
+  if (formData.nationality === "Other" && !formData.nationalityOther.trim()) {
+    errors.nationalityOther = "Please specify your nationality.";
   }
 
   if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {

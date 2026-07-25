@@ -55,6 +55,14 @@ export function StaffClient() {
   const hasData = Boolean(session.lastUpdatedAt);
   const invalidCount = Object.keys(session.validation.errors).length;
 
+  const preferredLanguageDisplay = formData.preferredLanguage === "Other" && formData.preferredLanguageOther
+    ? `Other (${formData.preferredLanguageOther})`
+    : formData.preferredLanguage;
+
+  const nationalityDisplay = formData.nationality === "Other" && formData.nationalityOther
+    ? `Other (${formData.nationalityOther})`
+    : formData.nationality;
+
   return (
     <PageShell
       activeView="staff"
@@ -133,8 +141,8 @@ export function StaffClient() {
               <StaffField label="Gender" value={formData.gender.replaceAll("_", " ")} />
               <StaffField label="Phone number" value={formData.phone} />
               <StaffField label="Email" value={formData.email} />
-              <StaffField label="Preferred language" value={formData.preferredLanguage} />
-              <StaffField label="Nationality" value={formData.nationality} />
+              <StaffField label="Preferred language" value={preferredLanguageDisplay} />
+              <StaffField label="Nationality" value={nationalityDisplay} />
               <StaffField label="Religion" value={formData.religion} />
               <StaffField label="Emergency contact name" value={formData.emergencyContactName} />
               <StaffField label="Emergency contact relationship" value={formData.emergencyContactRelationship} />

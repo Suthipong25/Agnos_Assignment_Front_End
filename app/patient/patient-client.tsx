@@ -36,6 +36,21 @@ export function PatientClient() {
   const validation = useMemo(() => validatePatientForm(formData), [formData]);
   const visibleErrors: ValidationErrors = {};
 
+  const dobLimits = useMemo(() => {
+    const today = new Date();
+    const formatLocalYYYYMMDD = (d: Date) => {
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    };
+    const maxDate = formatLocalYYYYMMDD(today);
+    const minDateObj = new Date(today);
+    minDateObj.setFullYear(today.getFullYear() - 120);
+    const minDate = formatLocalYYYYMMDD(minDateObj);
+    return { minDate, maxDate };
+  }, []);
+
   for (const key of Object.keys(validation.errors) as FieldName[]) {
     if (touched[key]) {
       visibleErrors[key] = validation.errors[key];
@@ -95,10 +110,16 @@ export function PatientClient() {
   function updateField(field: FieldName, value: string) {
     setSubmittedAt(null);
     setTouched((current) => ({ ...current, [field]: true }));
-    setFormData((current) => ({
-      ...current,
-      [field]: value
-    }));
+    setFormData((current) => {
+      const next = { ...current, [field]: value };
+      if (field === "preferredLanguage" && value !== "Other") {
+        next.preferredLanguageOther = "";
+      }
+      if (field === "nationality" && value !== "Other") {
+        next.nationalityOther = "";
+      }
+      return next;
+    });
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -170,17 +191,20 @@ export function PatientClient() {
               value={formData.dateOfBirth}
               error={visibleErrors.dateOfBirth}
               onChange={(event) => updateField("dateOfBirth", event.target.value)}
+              min={dobLimits.minDate}
+              max={dobLimits.maxDate}
               required
             />
             <div className="md:col-span-2">
               <span className="text-sm font-medium text-ink">Gender</span>
               <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                {genderOptions.map((option) => (
+                {genderOptions.map((option, index) => (
                   <label
                     key={option.value}
                     className="flex min-h-11 items-center gap-2 rounded-md border border-line bg-white px-3 py-2 text-sm text-ink"
                   >
                     <input
+                      id={index === 0 ? "gender" : undefined}
                       type="radio"
                       name="gender"
                       value={option.value}
@@ -225,6 +249,16 @@ export function PatientClient() {
               onChange={(event) => updateField("preferredLanguage", event.target.value)}
               required
             />
+            {formData.preferredLanguage === "Other" && (
+              <TextField
+                id="preferredLanguageOther"
+                label="Specify preferred language"
+                value={formData.preferredLanguageOther}
+                error={visibleErrors.preferredLanguageOther}
+                onChange={(event) => updateField("preferredLanguageOther", event.target.value)}
+                required
+              />
+            )}
             <SelectField
               id="nationality"
               label="Nationality"
@@ -234,6 +268,16 @@ export function PatientClient() {
               onChange={(event) => updateField("nationality", event.target.value)}
               required
             />
+            {formData.nationality === "Other" && (
+              <TextField
+                id="nationalityOther"
+                label="Specify nationality"
+                value={formData.nationalityOther}
+                error={visibleErrors.nationalityOther}
+                onChange={(event) => updateField("nationalityOther", event.target.value)}
+                required
+              />
+            )}
             <div className="md:col-span-2">
               <TextArea
                 id="address"
@@ -269,6 +313,34 @@ export function PatientClient() {
               onChange={(event) => updateField("religion", event.target.value)}
             />
           </Section>
+
+          {!validation.isValid && (
+            <div
+              role="alert"
+              className="rounded-lg border border-coral/25 bg-coral/5 p-4"
+            >
+              <p className="text-sm font-semibold text-coral">Please correct the following issues to enable submission:</p>
+              <ul className="mt-2 grid gap-1.5 text-sm text-ink/80">
+                {Object.entries(validation.errors).map(([field, errorText]) => (
+                  <li key={field}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const el = document.getElementById(field);
+                        if (el) {
+                          el.focus();
+                          el.scrollIntoView({ behavior: "smooth", block: "center" });
+                        }
+                      }}
+                      className="text-left font-medium text-coral hover:underline focus:underline focus:outline-none"
+                    >
+                      • {errorText}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <div className="flex flex-col gap-3 rounded-lg border border-line bg-white p-4 shadow-soft sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-ink/70">
