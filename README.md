@@ -38,7 +38,7 @@ A responsive Next.js application for real-time patient intake monitoring. Patien
 - **Framework**: Next.js 15 App Router
 - **UI**: React 19
 - **Styling**: Tailwind CSS
-- **Language**: TypeScript
+- **Language**: JavaScript (ES6+ / JSX)
 - **Realtime communication**: Supabase Realtime Broadcast and browser `BroadcastChannel`
 
 ---
@@ -106,24 +106,25 @@ Both pages must share the exact same `sessionId` to sync on the same realtime ch
 ```text
 Agnos_Assignment_front_end/
 |-- app/
-|   |-- patient/       # Patient form route and client container
-|   |-- staff/         # Staff dashboard route and client container
+|   |-- patient/       # Patient form route and client container (.jsx)
+|   |-- staff/         # Staff dashboard route and client container (.jsx)
 |   |-- globals.css    # Global Tailwind and base styles
-|   |-- layout.tsx     # Root layout
-|   `-- page.tsx       # Home route
-|-- components/        # Shared UI components
-|   |-- Field.tsx      # Patient form controls
-|   |-- PageShell.tsx  # Shared page layout and session navigation
-|   |-- Section.tsx    # Form section wrapper
-|   |-- StaffField.tsx # Read-only staff field display
-|   `-- StatusBadge.tsx
+|   |-- layout.jsx     # Root layout
+|   `-- page.jsx       # Home route
+|-- components/        # Shared UI components (.jsx)
+|   |-- Field.jsx      # Patient form controls
+|   |-- PageShell.jsx  # Shared page layout and session navigation
+|   |-- Section.jsx    # Form section wrapper
+|   |-- StaffField.jsx # Read-only staff field display
+|   `-- StatusBadge.jsx
 |-- docs/
 |   `-- DEVELOPMENT_PLAN.md
 |-- lib/
-|   |-- patient.ts     # Data types, defaults, validation, labels
-|   |-- realtime.ts    # Supabase and BroadcastChannel protocol
-|   `-- time.ts        # Timestamp formatting helpers
+|   |-- patient.js     # Form default values, validation, labels
+|   |-- realtime.js    # Supabase and BroadcastChannel protocol
+|   `-- time.js        # Timestamp formatting helpers
 |-- .env.example
+|-- jsconfig.json
 `-- README.md
 ```
 
