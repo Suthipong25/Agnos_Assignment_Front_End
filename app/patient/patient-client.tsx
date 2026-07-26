@@ -75,6 +75,11 @@ export function PatientClient() {
   }, [sessionId]);
 
   useEffect(() => {
+    const isFormStarted = Object.values(formData).some((v) => String(v).trim() !== "") || Boolean(submittedAt);
+    if (!isFormStarted) {
+      return;
+    }
+
     const nextUpdatedAt = new Date().toISOString();
     setLastUpdatedAt(nextUpdatedAt);
 
@@ -93,7 +98,8 @@ export function PatientClient() {
 
   useEffect(() => {
     const handle = window.setInterval(() => {
-      if (!submittedAt) {
+      const isFormStarted = Object.values(formData).some((v) => String(v).trim() !== "") || Boolean(submittedAt);
+      if (!submittedAt && isFormStarted) {
         const heartbeatAt = new Date().toISOString();
         setLastUpdatedAt(heartbeatAt);
         void publishState({

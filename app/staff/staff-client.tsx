@@ -60,7 +60,7 @@ export function StaffClient() {
   }, [clock, session.lastUpdatedAt, session.status]);
 
   const formData = session.formData;
-  const hasData = Boolean(session.lastUpdatedAt);
+  const hasData = Object.values(formData).some((val) => String(val).trim() !== "") || session.status === "submitted";
   const invalidCount = Object.keys(session.validation.errors).length;
 
   const preferredLanguageDisplay = formData.preferredLanguage === "Other" && formData.preferredLanguageOther
