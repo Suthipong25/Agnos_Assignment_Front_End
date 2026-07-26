@@ -1,10 +1,4 @@
-type SectionProps = {
-  title: string;
-  description?: string;
-  children: React.ReactNode;
-};
-
-export function Section({ title, description, children }: SectionProps) {
+export function Section({ title, description, children }) {
   return (
     <section className="rounded-2xl border border-line/70 bg-white/90 backdrop-blur-sm overflow-hidden">
       <div className="border-b border-line/60 px-5 py-4">

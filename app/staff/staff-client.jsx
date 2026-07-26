@@ -9,9 +9,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import {
   defaultSessionState,
   getSessionId,
-  statusLabel,
-  type PatientSessionState,
-  type PatientStatus
+  statusLabel
 } from "@/lib/patient";
 import { connectPatientSession } from "@/lib/realtime";
 import { formatTimestamp, secondsSince } from "@/lib/time";
@@ -19,7 +17,7 @@ import { formatTimestamp, secondsSince } from "@/lib/time";
 export function StaffClient() {
   const searchParams = useSearchParams();
   const sessionId = getSessionId(searchParams);
-  const [session, setSession] = useState<PatientSessionState>(defaultSessionState);
+  const [session, setSession] = useState(defaultSessionState);
 
   const [clock, setClock] = useState(Date.now());
 
@@ -45,7 +43,7 @@ export function StaffClient() {
     return () => window.clearInterval(handle);
   }, []);
 
-  const derivedStatus = useMemo<PatientStatus>(() => {
+  const derivedStatus = useMemo(() => {
     void clock;
 
     if (session.status === "submitted") {

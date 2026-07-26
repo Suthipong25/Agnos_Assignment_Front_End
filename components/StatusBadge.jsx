@@ -1,8 +1,8 @@
 import { CheckCircle2, CircleDashed, Clock3 } from "lucide-react";
-import { type PatientStatus, statusLabel } from "@/lib/patient";
+import { statusLabel } from "@/lib/patient";
 
-export function StatusBadge({ status }: { status: PatientStatus }) {
-  const styleByStatus: Record<PatientStatus, string> = {
+export function StatusBadge({ status }) {
+  const styleByStatus = {
     no_activity: "border-line/60 bg-white/60 text-ink/50",
     in_progress: "border-clinic/30 bg-clinic/10 text-clinic",
     idle: "border-amber-200 bg-amber-50 text-amber-700",

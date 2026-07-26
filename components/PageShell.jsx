@@ -1,16 +1,7 @@
 import Link from "next/link";
 import { Activity, ClipboardList, HeartPulse } from "lucide-react";
 
-type PageShellProps = {
-  title: string;
-  eyebrow: string;
-  description: string;
-  sessionId: string;
-  activeView: "patient" | "staff";
-  children: React.ReactNode;
-};
-
-export function PageShell({ title, eyebrow, description, sessionId, activeView, children }: PageShellProps) {
+export function PageShell({ title, eyebrow, description, sessionId, activeView, children }) {
   const patientHref = `/patient?sessionId=${encodeURIComponent(sessionId)}`;
   const staffHref = `/staff?sessionId=${encodeURIComponent(sessionId)}`;
 
@@ -50,7 +41,7 @@ export function PageShell({ title, eyebrow, description, sessionId, activeView, 
   );
 }
 
-function navClass(active: boolean) {
+function navClass(active) {
   return [
     "inline-flex flex-1 justify-center items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 md:flex-none md:px-4",
     active

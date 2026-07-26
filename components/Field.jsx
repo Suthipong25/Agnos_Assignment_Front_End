@@ -1,29 +1,13 @@
-import type { InputHTMLAttributes, SelectHTMLAttributes, TextareaHTMLAttributes } from "react";
-
-type BaseProps = {
-  label: string;
-  error?: string;
-  hint?: string;
-};
-
-type TextFieldProps = BaseProps & InputHTMLAttributes<HTMLInputElement>;
-type TextAreaProps = BaseProps & TextareaHTMLAttributes<HTMLTextAreaElement>;
-type SelectFieldProps = BaseProps &
-  SelectHTMLAttributes<HTMLSelectElement> & {
-    options: string[];
-    placeholder?: string;
-  };
-
 const inputBase =
   "mt-1.5 w-full rounded-xl border bg-white/90 px-3.5 py-2.5 text-sm text-ink outline-none transition-all duration-150";
 const inputNormal = "border-line hover:border-ink/30 focus:border-clinic focus:ring-4 focus:ring-clinic/10";
 const inputError  = "border-coral/60 bg-coral/5 focus:border-coral focus:ring-4 focus:ring-coral/10";
 
-function inputClass(error?: string) {
+function inputClass(error) {
   return `${inputBase} ${error ? inputError : inputNormal}`;
 }
 
-export function TextField({ label, error, hint, id, required, ...props }: TextFieldProps) {
+export function TextField({ label, error, hint, id, required, ...props }) {
   return (
     <label className="block" htmlFor={id}>
       <FieldLabel label={label} required={required} />
@@ -33,7 +17,7 @@ export function TextField({ label, error, hint, id, required, ...props }: TextFi
   );
 }
 
-export function TextArea({ label, error, hint, id, required, ...props }: TextAreaProps) {
+export function TextArea({ label, error, hint, id, required, ...props }) {
   return (
     <label className="block" htmlFor={id}>
       <FieldLabel label={label} required={required} />
@@ -49,7 +33,7 @@ export function TextArea({ label, error, hint, id, required, ...props }: TextAre
   );
 }
 
-export function SelectField({ label, error, hint, id, options, required, placeholder = "Select an option", ...props }: SelectFieldProps) {
+export function SelectField({ label, error, hint, id, options, required, placeholder = "Select an option", ...props }) {
   return (
     <label className="block" htmlFor={id}>
       <FieldLabel label={label} required={required} />
@@ -66,7 +50,7 @@ export function SelectField({ label, error, hint, id, options, required, placeho
   );
 }
 
-function FieldLabel({ label, required }: { label: string; required?: boolean }) {
+function FieldLabel({ label, required }) {
   return (
     <span className="flex items-center gap-1 text-sm font-semibold text-ink/80">
       {label}
@@ -75,7 +59,7 @@ function FieldLabel({ label, required }: { label: string; required?: boolean }) 
   );
 }
 
-function FieldNote({ error, hint }: { error?: string; hint?: string }) {
+function FieldNote({ error, hint }) {
   if (error) {
     return <p className="mt-1.5 flex items-center gap-1 text-xs font-medium text-coral">⚠ {error}</p>;
   }

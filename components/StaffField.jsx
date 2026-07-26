@@ -1,13 +1,6 @@
 import { formatFieldValue } from "@/lib/patient";
 
-type StaffFieldProps = {
-  label: string;
-  value?: string | null;
-  wide?: boolean;
-  showEmpty?: boolean;
-};
-
-export function StaffField({ label, value, wide, showEmpty = true }: StaffFieldProps) {
+export function StaffField({ label, value, wide, showEmpty = true }) {
   const hasValue = Boolean(value?.trim());
 
   if (!hasValue && !showEmpty) {
@@ -23,4 +16,3 @@ export function StaffField({ label, value, wide, showEmpty = true }: StaffFieldP
     </div>
   );
 }
-

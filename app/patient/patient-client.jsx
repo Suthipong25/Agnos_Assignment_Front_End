@@ -14,33 +14,27 @@ import {
   getSessionId,
   languageOptions,
   nationalityOptions,
-  type Gender,
-  type PatientFormData,
-  type PatientSessionState,
-  type ValidationErrors,
   validatePatientForm
 } from "@/lib/patient";
 import { connectPatientSession } from "@/lib/realtime";
 import { formatTimestamp } from "@/lib/time";
 
-type FieldName = keyof PatientFormData;
-
 export function PatientClient() {
   const searchParams = useSearchParams();
   const sessionId = getSessionId(searchParams);
-  const [formData, setFormData] = useState<PatientFormData>(defaultPatientFormData);
-  const [touched, setTouched] = useState<Partial<Record<FieldName, boolean>>>({});
-  const [submittedAt, setSubmittedAt] = useState<string | null>(null);
-  const [lastUpdatedAt, setLastUpdatedAt] = useState<string | null>(null);
+  const [formData, setFormData] = useState(defaultPatientFormData);
+  const [touched, setTouched] = useState({});
+  const [submittedAt, setSubmittedAt] = useState(null);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState(null);
 
-  const connectionRef = useRef<ReturnType<typeof connectPatientSession> | null>(null);
-  const latestSessionRef = useRef<PatientSessionState>(defaultSessionState);
+  const connectionRef = useRef(null);
+  const latestSessionRef = useRef(defaultSessionState);
   const validation = useMemo(() => validatePatientForm(formData), [formData]);
-  const visibleErrors: ValidationErrors = {};
+  const visibleErrors = {};
 
   const dobLimits = useMemo(() => {
     const today = new Date();
-    const formatLocalYYYYMMDD = (d: Date) => {
+    const formatLocalYYYYMMDD = (d) => {
       const yyyy = d.getFullYear();
       const mm = String(d.getMonth() + 1).padStart(2, "0");
       const dd = String(d.getDate()).padStart(2, "0");
@@ -53,7 +47,7 @@ export function PatientClient() {
     return { minDate, maxDate };
   }, []);
 
-  for (const key of Object.keys(validation.errors) as FieldName[]) {
+  for (const key of Object.keys(validation.errors)) {
     if (touched[key]) {
       visibleErrors[key] = validation.errors[key];
     }
@@ -115,12 +109,12 @@ export function PatientClient() {
     return () => window.clearInterval(handle);
   }, [formData, submittedAt, validation]);
 
-  function publishState(state: PatientSessionState) {
+  function publishState(state) {
     latestSessionRef.current = state;
     return connectionRef.current?.publish(state) ?? Promise.resolve();
   }
 
-  function updateField(field: FieldName, value: string) {
+  function updateField(field, value) {
     setSubmittedAt(null);
     setTouched((current) => ({ ...current, [field]: true }));
     setFormData((current) => {
@@ -135,10 +129,10 @@ export function PatientClient() {
     });
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(event) {
     event.preventDefault();
-    const allTouched = Object.keys(formData).reduce<Partial<Record<FieldName, boolean>>>((acc, key) => {
-      acc[key as FieldName] = true;
+    const allTouched = Object.keys(formData).reduce((acc, key) => {
+      acc[key] = true;
       return acc;
     }, {});
     setTouched(allTouched);
@@ -222,7 +216,7 @@ export function PatientClient() {
                       name="gender"
                       value={option.value}
                       checked={formData.gender === option.value}
-                      onChange={(event) => updateField("gender", event.target.value as Gender)}
+                      onChange={(event) => updateField("gender", event.target.value)}
                       required
                     />
                     {option.label}
@@ -371,7 +365,6 @@ export function PatientClient() {
         </form>
 
         <aside className="order-1 lg:order-2 h-fit rounded-2xl border border-line/70 bg-white/90 p-4 backdrop-blur-sm lg:sticky lg:top-8">
-          {/* Mobile: horizontal compact layout */}
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-clinic/10">
