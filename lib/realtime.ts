@@ -61,6 +61,16 @@ export function connectPatientSession(
   const supabase = getSupabaseClient();
   let realtimeChannel: RealtimeChannel | null = null;
   let isSubscribed = false;
+  let latestTimestamp = 0;
+
+  const emitMessage = (state: PatientSessionState) => {
+    if (!state) return;
+    const stateTime = state.lastUpdatedAt ? new Date(state.lastUpdatedAt).getTime() : 0;
+    if (stateTime >= latestTimestamp) {
+      latestTimestamp = stateTime;
+      onMessage(state);
+    }
+  };
 
   // 1. Initial hydration from localStorage if available
   if (typeof window !== "undefined") {
@@ -69,7 +79,7 @@ export function connectPatientSession(
       if (cached) {
         const parsed = JSON.parse(cached) as PatientSessionState;
         if (parsed?.lastUpdatedAt) {
-          onMessage(parsed);
+          emitMessage(parsed);
         }
       }
     } catch {
@@ -83,7 +93,7 @@ export function connectPatientSession(
       try {
         const parsed = JSON.parse(e.newValue) as PatientSessionState;
         if (parsed?.lastUpdatedAt) {
-          onMessage(parsed);
+          emitMessage(parsed);
         }
       } catch {
         // ignore parse error
@@ -98,7 +108,7 @@ export function connectPatientSession(
   // 3. BroadcastChannel listener
   localChannel?.addEventListener("message", (event: MessageEvent<RealtimeMessage>) => {
     if (event.data?.type === "patient_state") {
-      onMessage(event.data.payload);
+      emitMessage(event.data.payload);
     }
 
     if (event.data?.type === "state_request") {
@@ -117,7 +127,7 @@ export function connectPatientSession(
     });
 
     realtimeChannel.on("broadcast", { event: "patient_state" }, ({ payload }) => {
-      onMessage(payload as PatientSessionState);
+      emitMessage(payload as PatientSessionState);
     });
 
     realtimeChannel.on("broadcast", { event: "state_request" }, () => {
@@ -136,6 +146,11 @@ export function connectPatientSession(
         type: "patient_state",
         payload: state
       };
+
+      // Update local timestamp guard
+      if (state.lastUpdatedAt) {
+        latestTimestamp = new Date(state.lastUpdatedAt).getTime();
+      }
 
       // Update localStorage for instant local tab sync
       if (typeof window !== "undefined") {
@@ -167,21 +182,6 @@ export function connectPatientSession(
       }
     },
     async requestLatest() {
-      // Re-check localStorage first
-      if (typeof window !== "undefined") {
-        try {
-          const cached = localStorage.getItem(storageKey);
-          if (cached) {
-            const parsed = JSON.parse(cached) as PatientSessionState;
-            if (parsed?.lastUpdatedAt) {
-              onMessage(parsed);
-            }
-          }
-        } catch {
-          // ignore
-        }
-      }
-
       const message: RealtimeMessage = {
         type: "state_request",
         payload: {
