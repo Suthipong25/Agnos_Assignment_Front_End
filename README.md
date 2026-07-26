@@ -2,6 +2,10 @@
 
 A responsive Next.js application for real-time patient intake monitoring. Patients fill out an intake form while staff members watch field values, validation status, and activity state update live on a matching staff dashboard.
 
+- **Live Application**: [https://agnos-assignment-front-end.vercel.app/patient](https://agnos-assignment-front-end.vercel.app/patient)
+- **Patient View (Live)**: [https://agnos-assignment-front-end.vercel.app/patient?sessionId=demo](https://agnos-assignment-front-end.vercel.app/patient?sessionId=demo)
+- **Staff View (Live)**: [https://agnos-assignment-front-end.vercel.app/staff?sessionId=demo](https://agnos-assignment-front-end.vercel.app/staff?sessionId=demo)
+
 ---
 
 ## Key Features
@@ -79,12 +83,19 @@ The application starts at `http://localhost:3000`.
 
 ---
 
-## Usage
+## Usage & Live Demo
+
+### Live Deployment (Vercel)
 
 Open both views with the same `sessionId` query parameter:
 
-1. Patient view: [http://localhost:3000/patient?sessionId=demo](http://localhost:3000/patient?sessionId=demo)
-2. Staff view: [http://localhost:3000/staff?sessionId=demo](http://localhost:3000/staff?sessionId=demo)
+1. **Patient View**: [https://agnos-assignment-front-end.vercel.app/patient?sessionId=demo](https://agnos-assignment-front-end.vercel.app/patient?sessionId=demo)
+2. **Staff View**: [https://agnos-assignment-front-end.vercel.app/staff?sessionId=demo](https://agnos-assignment-front-end.vercel.app/staff?sessionId=demo)
+
+### Local Development
+
+1. **Patient View**: [http://localhost:3000/patient?sessionId=demo](http://localhost:3000/patient?sessionId=demo)
+2. **Staff View**: [http://localhost:3000/staff?sessionId=demo](http://localhost:3000/staff?sessionId=demo)
 
 Both pages must share the exact same `sessionId` to sync on the same realtime channel.
 
