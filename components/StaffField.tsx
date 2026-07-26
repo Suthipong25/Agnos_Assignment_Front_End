@@ -4,9 +4,16 @@ type StaffFieldProps = {
   label: string;
   value?: string | null;
   wide?: boolean;
+  showEmpty?: boolean;
 };
 
-export function StaffField({ label, value, wide }: StaffFieldProps) {
+export function StaffField({ label, value, wide, showEmpty = true }: StaffFieldProps) {
+  const hasValue = Boolean(value?.trim());
+
+  if (!hasValue && !showEmpty) {
+    return null;
+  }
+
   return (
     <div className={wide ? "md:col-span-2" : undefined}>
       <dt className="text-xs font-semibold uppercase tracking-wide text-ink/50">{label}</dt>
@@ -16,3 +23,4 @@ export function StaffField({ label, value, wide }: StaffFieldProps) {
     </div>
   );
 }
+

@@ -60,7 +60,8 @@ export function StaffClient() {
   }, [clock, session.lastUpdatedAt, session.status]);
 
   const formData = session.formData;
-  const hasData = Object.values(formData).some((val) => String(val).trim() !== "") || session.status === "submitted";
+  const isSubmitted = session.status === "submitted";
+  const hasData = Object.values(formData).some((val) => String(val).trim() !== "") || isSubmitted;
   const invalidCount = Object.keys(session.validation.errors).length;
 
   const preferredLanguageDisplay = formData.preferredLanguage === "Other" && formData.preferredLanguageOther
@@ -136,19 +137,19 @@ export function StaffClient() {
             </div>
           ) : (
             <dl className="mt-5 grid gap-4 md:grid-cols-2">
-              <StaffField label="First name" value={formData.firstName} />
-              <StaffField label="Middle name" value={formData.middleName} />
-              <StaffField label="Last name" value={formData.lastName} />
-              <StaffField label="Date of birth" value={formData.dateOfBirth} />
-              <StaffField label="Gender" value={formData.gender.replaceAll("_", " ")} />
-              <StaffField label="Phone number" value={formData.phone} />
-              <StaffField label="Email" value={formData.email} />
-              <StaffField label="Preferred language" value={preferredLanguageDisplay} />
-              <StaffField label="Nationality" value={nationalityDisplay} />
-              <StaffField label="Religion" value={formData.religion} />
-              <StaffField label="Emergency contact name" value={formData.emergencyContactName} />
-              <StaffField label="Emergency contact relationship" value={formData.emergencyContactRelationship} />
-              <StaffField label="Address" value={formData.address} wide />
+              <StaffField label="First name" value={formData.firstName} showEmpty={isSubmitted} />
+              <StaffField label="Middle name" value={formData.middleName} showEmpty={isSubmitted} />
+              <StaffField label="Last name" value={formData.lastName} showEmpty={isSubmitted} />
+              <StaffField label="Date of birth" value={formData.dateOfBirth} showEmpty={isSubmitted} />
+              <StaffField label="Gender" value={formData.gender.replaceAll("_", " ")} showEmpty={isSubmitted} />
+              <StaffField label="Phone number" value={formData.phone} showEmpty={isSubmitted} />
+              <StaffField label="Email" value={formData.email} showEmpty={isSubmitted} />
+              <StaffField label="Preferred language" value={preferredLanguageDisplay} showEmpty={isSubmitted} />
+              <StaffField label="Nationality" value={nationalityDisplay} showEmpty={isSubmitted} />
+              <StaffField label="Religion" value={formData.religion} showEmpty={isSubmitted} />
+              <StaffField label="Emergency contact name" value={formData.emergencyContactName} showEmpty={isSubmitted} />
+              <StaffField label="Emergency contact relationship" value={formData.emergencyContactRelationship} showEmpty={isSubmitted} />
+              <StaffField label="Address" value={formData.address} wide showEmpty={isSubmitted} />
             </dl>
           )}
 
