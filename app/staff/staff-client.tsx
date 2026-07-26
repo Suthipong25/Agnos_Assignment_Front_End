@@ -20,16 +20,24 @@ export function StaffClient() {
   const searchParams = useSearchParams();
   const sessionId = getSessionId(searchParams);
   const [session, setSession] = useState<PatientSessionState>(defaultSessionState);
-  const [realtimeMode, setRealtimeMode] = useState<"supabase" | "local">("local");
+
   const [clock, setClock] = useState(Date.now());
 
   useEffect(() => {
+    setSession(defaultSessionState);
+
     const connection = connectPatientSession(sessionId, (nextState) => {
       setSession(nextState);
     });
-    setRealtimeMode(connection.mode);
 
-    return () => connection.unsubscribe();
+    const requestHandle = window.setTimeout(() => {
+      void connection.requestLatest();
+    }, 200);
+
+    return () => {
+      window.clearTimeout(requestHandle);
+      connection.unsubscribe();
+    };
   }, [sessionId]);
 
   useEffect(() => {
@@ -71,42 +79,36 @@ export function StaffClient() {
       description="Monitor form progress in real time, spot missing information, and see when the patient has submitted the intake."
       sessionId={sessionId}
     >
-      <div className="grid gap-5 xl:grid-cols-[22rem_1fr]">
-        <aside className="h-fit rounded-lg border border-line bg-white p-4 shadow-soft xl:sticky xl:top-5">
+      <div className="grid gap-6 xl:grid-cols-[22rem_1fr]">
+        <aside className="h-fit rounded-2xl border border-white/80 bg-white/80 p-5 shadow-soft backdrop-blur-sm xl:sticky xl:top-8">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-ink/50">Current status</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-ink/40">Current status</p>
               <div className="mt-2">
                 <StatusBadge status={derivedStatus} />
               </div>
             </div>
-            <Radio className="text-clinic" size={20} aria-hidden="true" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-clinic/10">
+              <Radio className="text-clinic" size={18} aria-hidden="true" />
+            </div>
           </div>
 
           <dl className="mt-5 grid gap-3 text-sm">
-            <div className="rounded-md border border-line bg-mist p-3">
-              <dt className="font-semibold text-ink">Session ID</dt>
-              <dd className="mt-1 break-all text-ink/70">{sessionId}</dd>
+            <div className="rounded-xl border border-line/60 bg-mist/60 p-3">
+              <dt className="text-xs font-bold uppercase tracking-widest text-ink/40">Last activity</dt>
+              <dd className="mt-1.5 text-sm font-medium text-ink/80">{formatTimestamp(session.lastUpdatedAt)}</dd>
             </div>
-            <div className="rounded-md border border-line bg-mist p-3">
-              <dt className="font-semibold text-ink">Realtime mode</dt>
-              <dd className="mt-1 text-ink/70">{realtimeMode === "supabase" ? "Supabase Broadcast" : "Local fallback"}</dd>
-            </div>
-            <div className="rounded-md border border-line bg-mist p-3">
-              <dt className="font-semibold text-ink">Last updated</dt>
-              <dd className="mt-1 text-ink/70">{formatTimestamp(session.lastUpdatedAt)}</dd>
-            </div>
-            <div className="rounded-md border border-line bg-mist p-3">
-              <dt className="font-semibold text-ink">Validation</dt>
-              <dd className="mt-1 flex items-center gap-2 text-ink/70">
+            <div className="rounded-xl border border-line/60 bg-mist/60 p-3">
+              <dt className="text-xs font-bold uppercase tracking-widest text-ink/40">Form validation</dt>
+              <dd className="mt-1.5 flex items-center gap-2 text-sm font-medium text-ink/80">
                 {session.validation.isValid ? (
                   <>
-                    <CheckCircle2 size={16} className="text-emerald-600" aria-hidden="true" />
+                    <CheckCircle2 size={15} className="text-emerald-600" aria-hidden="true" />
                     Ready to submit
                   </>
                 ) : (
                   <>
-                    <AlertCircle size={16} className="text-coral" aria-hidden="true" />
+                    <AlertCircle size={15} className="text-coral" aria-hidden="true" />
                     {invalidCount || "No"} issue{invalidCount === 1 ? "" : "s"}
                   </>
                 )}
@@ -115,20 +117,20 @@ export function StaffClient() {
           </dl>
         </aside>
 
-        <section className="rounded-lg border border-line bg-white p-4 shadow-soft">
-          <div className="flex flex-col gap-2 border-b border-line pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <section className="rounded-2xl border border-white/80 bg-white/80 p-5 shadow-soft backdrop-blur-sm">
+          <div className="flex flex-col gap-2 border-b border-line/50 pb-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-ink">Patient details</h2>
-              <p className="mt-1 text-sm text-ink/65">
+              <h2 className="text-base font-bold text-ink">Patient details</h2>
+              <p className="mt-0.5 text-sm text-ink/55">
                 {hasData ? `Showing ${statusLabel(derivedStatus).toLowerCase()} data from the patient form.` : "Waiting for patient activity."}
               </p>
             </div>
           </div>
 
           {!hasData ? (
-            <div className="mt-6 rounded-lg border border-dashed border-line bg-mist p-8 text-center">
+            <div className="mt-6 rounded-2xl border border-dashed border-line bg-mist/50 p-10 text-center">
               <p className="text-base font-semibold text-ink">No patient activity yet</p>
-              <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-ink/65">
+              <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-ink/50">
                 Open the patient form with this same session ID and start typing. Updates will appear here immediately.
               </p>
             </div>
@@ -151,11 +153,11 @@ export function StaffClient() {
           )}
 
           {invalidCount > 0 ? (
-            <div className="mt-5 rounded-md border border-coral/25 bg-coral/5 p-4">
+            <div className="mt-5 rounded-xl border border-coral/20 bg-gradient-to-br from-coral/5 to-transparent p-4">
               <p className="text-sm font-semibold text-coral">Current validation issues</p>
-              <ul className="mt-2 grid gap-1 text-sm leading-6 text-ink/70">
+              <ul className="mt-2 grid gap-1 text-sm leading-6 text-ink/65">
                 {Object.entries(session.validation.errors).map(([field, message]) => (
-                  <li key={field}>{message}</li>
+                  <li key={field}>⚠ {message}</li>
                 ))}
               </ul>
             </div>

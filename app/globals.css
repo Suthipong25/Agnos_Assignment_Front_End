@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -11,12 +13,18 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   min-height: 100vh;
   margin: 0;
   background:
-    radial-gradient(circle at top left, rgba(15, 118, 110, 0.1), transparent 30rem),
-    linear-gradient(135deg, #f7faf8 0%, #f4f7f5 48%, #efe5d0 100%);
+    radial-gradient(ellipse at top left, rgba(15, 118, 110, 0.12), transparent 40rem),
+    radial-gradient(ellipse at bottom right, rgba(239, 229, 208, 0.6), transparent 35rem),
+    linear-gradient(160deg, #f8fbf9 0%, #f4f7f5 50%, #efe9dd 100%);
   color: #17211c;
 }
 
@@ -28,5 +36,14 @@ textarea {
 }
 
 ::selection {
-  background: rgba(15, 118, 110, 0.18);
+  background: rgba(15, 118, 110, 0.2);
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 1.4s ease-in-out infinite;
 }

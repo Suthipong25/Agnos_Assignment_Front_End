@@ -8,6 +8,7 @@ import { PageShell } from "@/components/PageShell";
 import { Section } from "@/components/Section";
 import { StatusBadge } from "@/components/StatusBadge";
 import {
+  defaultSessionState,
   defaultPatientFormData,
   genderOptions,
   getSessionId,
@@ -31,8 +32,9 @@ export function PatientClient() {
   const [touched, setTouched] = useState<Partial<Record<FieldName, boolean>>>({});
   const [submittedAt, setSubmittedAt] = useState<string | null>(null);
   const [lastUpdatedAt, setLastUpdatedAt] = useState<string | null>(null);
-  const [realtimeMode, setRealtimeMode] = useState<"supabase" | "local">("local");
+
   const connectionRef = useRef<ReturnType<typeof connectPatientSession> | null>(null);
+  const latestSessionRef = useRef<PatientSessionState>(defaultSessionState);
   const validation = useMemo(() => validatePatientForm(formData), [formData]);
   const visibleErrors: ValidationErrors = {};
 
@@ -58,9 +60,13 @@ export function PatientClient() {
   }
 
   useEffect(() => {
-    const connection = connectPatientSession(sessionId, () => undefined);
+    const connection = connectPatientSession(sessionId, () => undefined, () => {
+      const latestSession = latestSessionRef.current;
+      if (latestSession.lastUpdatedAt) {
+        void publishState(latestSession);
+      }
+    });
     connectionRef.current = connection;
-    setRealtimeMode(connection.mode);
 
     return () => {
       connection.unsubscribe();
@@ -104,6 +110,7 @@ export function PatientClient() {
   }, [formData, submittedAt, validation]);
 
   function publishState(state: PatientSessionState) {
+    latestSessionRef.current = state;
     return connectionRef.current?.publish(state) ?? Promise.resolve();
   }
 
@@ -156,8 +163,8 @@ export function PatientClient() {
       description="Complete your intake details once. The care team can follow progress live from the staff view for the same session."
       sessionId={sessionId}
     >
-      <div className="grid gap-5 lg:grid-cols-[1fr_20rem]">
-        <form className="flex flex-col gap-5" onSubmit={handleSubmit} noValidate>
+      <div className="grid gap-5 lg:grid-cols-[1fr_18rem]">
+        <form className="order-2 flex flex-col gap-4 lg:order-1" onSubmit={handleSubmit} noValidate>
           <Section title="Personal details" description="Core identification information used by the clinic team.">
             <TextField
               id="firstName"
@@ -196,8 +203,8 @@ export function PatientClient() {
               required
             />
             <div className="md:col-span-2">
-              <span className="text-sm font-medium text-ink">Gender</span>
-              <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              <span className="flex items-center gap-1 text-sm font-semibold text-ink/80">Gender <span className="text-coral" aria-hidden="true">*</span></span>
+              <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {genderOptions.map((option, index) => (
                   <label
                     key={option.value}
@@ -216,7 +223,7 @@ export function PatientClient() {
                   </label>
                 ))}
               </div>
-              {visibleErrors.gender ? <p className="mt-1.5 text-xs font-medium text-coral">{visibleErrors.gender}</p> : null}
+              {visibleErrors.gender ? <p className="mt-1.5 flex items-center gap-1 text-xs font-medium text-coral">⚠ {visibleErrors.gender}</p> : null}
             </div>
           </Section>
 
@@ -317,10 +324,10 @@ export function PatientClient() {
           {!validation.isValid && (
             <div
               role="alert"
-              className="rounded-lg border border-coral/25 bg-coral/5 p-4"
+              className="rounded-2xl border border-coral/20 bg-gradient-to-br from-coral/5 to-transparent p-4"
             >
-              <p className="text-sm font-semibold text-coral">Please correct the following issues to enable submission:</p>
-              <ul className="mt-2 grid gap-1.5 text-sm text-ink/80">
+              <p className="text-sm font-semibold text-coral">Please fix these issues before submitting:</p>
+              <ul className="mt-2 grid gap-1.5 text-sm text-ink/75">
                 {Object.entries(validation.errors).map(([field, errorText]) => (
                   <li key={field}>
                     <button
@@ -332,9 +339,9 @@ export function PatientClient() {
                           el.scrollIntoView({ behavior: "smooth", block: "center" });
                         }
                       }}
-                      className="text-left font-medium text-coral hover:underline focus:underline focus:outline-none"
+                      className="text-left font-medium text-coral underline-offset-2 hover:underline focus:underline focus:outline-none"
                     >
-                      • {errorText}
+                      ⚠ {errorText}
                     </button>
                   </li>
                 ))}
@@ -342,40 +349,47 @@ export function PatientClient() {
             </div>
           )}
 
-          <div className="flex flex-col gap-3 rounded-lg border border-line bg-white p-4 shadow-soft sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-ink/70">
-              {validation.isValid ? "The form is ready to submit." : "Complete the required fields to submit."}
+          <div className="flex flex-col gap-3 rounded-2xl border border-white/80 bg-white/80 px-5 py-4 shadow-soft backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-ink/60">
+              {validation.isValid ? "✓ Form is complete and ready to submit." : "Complete all required fields (marked *) to submit."}
             </p>
             <button
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-clinic px-4 text-sm font-semibold text-white transition hover:bg-clinic/90 disabled:cursor-not-allowed disabled:bg-ink/25"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-clinic to-emerald-600 px-6 text-sm font-bold text-white shadow-md transition-all duration-150 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:cursor-not-allowed disabled:from-ink/20 disabled:to-ink/20 disabled:shadow-none"
               type="submit"
               disabled={!validation.isValid}
             >
-              <Send size={16} aria-hidden="true" />
+              <Send size={15} aria-hidden="true" />
               Submit intake
             </button>
           </div>
         </form>
 
-        <aside className="h-fit rounded-lg border border-line bg-white p-4 shadow-soft lg:sticky lg:top-5">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-ink/50">Session</p>
-              <p className="mt-1 break-all text-lg font-semibold text-ink">{sessionId}</p>
+        <aside className="order-1 lg:order-2 h-fit rounded-2xl border border-white/80 bg-white/80 p-4 shadow-soft backdrop-blur-sm lg:sticky lg:top-8">
+          {/* Mobile: horizontal compact layout */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-clinic/10">
+                <Radio className="text-clinic" size={16} aria-hidden="true" />
+              </div>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest text-ink/40">Session</p>
+                <p className="text-sm font-bold text-ink truncate max-w-[8rem] sm:max-w-none">{sessionId}</p>
+              </div>
             </div>
-            <Radio className="text-clinic" size={20} aria-hidden="true" />
-          </div>
-          <div className="mt-4 flex flex-col gap-3">
             <StatusBadge status={currentStatus} />
-            <p className="text-sm leading-6 text-ink/70">
-              Realtime mode: <span className="font-semibold text-ink">{realtimeMode === "supabase" ? "Supabase" : "Local fallback"}</span>
-            </p>
-            <p className="text-sm leading-6 text-ink/70">Last update: {formatTimestamp(lastUpdatedAt)}</p>
           </div>
+
+          <div className="mt-3 border-t border-line/40 pt-3">
+            <p className="text-xs text-ink/40">Last update: {formatTimestamp(lastUpdatedAt)}</p>
+          </div>
+
           {submittedAt ? (
-            <div className="mt-4 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm leading-6 text-emerald-800">
-              <CheckCircle2 className="mb-2" size={18} aria-hidden="true" />
-              Submitted successfully. Staff can now see the completed intake state.
+            <div className="mt-3 rounded-xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-transparent p-3">
+              <div className="flex items-center gap-2 text-emerald-700">
+                <CheckCircle2 size={16} aria-hidden="true" />
+                <span className="text-sm font-semibold">Submitted successfully</span>
+              </div>
+              <p className="mt-1 text-xs leading-5 text-emerald-600/80">Staff can now see the completed intake.</p>
             </div>
           ) : null}
         </aside>

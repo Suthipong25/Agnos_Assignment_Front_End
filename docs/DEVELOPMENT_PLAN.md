@@ -5,7 +5,7 @@
 - `app/patient`: patient-facing intake route. The server page provides a suspense boundary and `patient-client.tsx` owns form state, validation, heartbeat, and realtime publishing.
 - `app/staff`: staff monitoring route. The client container subscribes to the session channel, derives activity status, and renders live patient details.
 - `components`: shared presentational components for shell layout, sections, fields, status badges, and staff field display.
-- `lib`: shared domain code, including `PatientFormData`, `PatientSessionState`, validation rules, Supabase Broadcast connection logic, and timestamp helpers.
+- `lib`: shared domain code, including `PatientFormData`, `PatientSessionState`, validation rules, Supabase and BroadcastChannel connection logic, and timestamp helpers.
 
 ## Design
 
@@ -22,14 +22,16 @@ Color choices avoid a one-note palette: teal is used for clinical action and con
 - `TextField`, `TextArea`, `SelectField`: accessible form controls with consistent labels, focus states, hints, and errors.
 - `StatusBadge`: maps session status to readable text, icon, and visual treatment.
 - `StaffField`: read-only staff data display with consistent empty-state formatting.
-- `patient-client.tsx`: patient state owner, validation coordinator, debounced publisher, heartbeat sender, and submit handler.
-- `staff-client.tsx`: subscriber, realtime mode indicator, idle-state derivation, and live data renderer.
+- `patient-client.tsx`: patient state owner, validation coordinator, debounced publisher, heartbeat sender, latest-state responder, and submit handler.
+- `staff-client.tsx`: subscriber, latest-state requester, realtime mode indicator, idle-state derivation, and live data renderer.
 
 ## Real-Time Synchronization Flow
 
-The app uses a shared channel name, `patient-intake:{sessionId}`. The patient route publishes the full `PatientSessionState` after field edits, heartbeat intervals, and final submission. The staff route subscribes to the same channel and replaces its current state with the latest payload.
+The app uses a shared channel name, `patient-intake:{sessionId}`. The patient route publishes the full `PatientSessionState` with the `patient_state` event after field edits, heartbeat intervals, and final submission. The staff route subscribes to the same channel and replaces its current state with the latest `patient_state` payload.
 
 Supabase Broadcast is the production realtime transport. A browser `BroadcastChannel` fallback is also enabled so reviewers can test the experience locally without setting up Supabase first. When Supabase credentials exist, messages are sent to both Supabase and the local fallback.
+
+When a staff view opens after an active patient view, it sends a `state_request` event on the same channel. The patient view keeps the latest published session in memory and responds by republishing that state. Patient intake data is intentionally not written to `localStorage`, so stale or private patient data is not shown after the active patient view is gone.
 
 ## Validation and Status Rules
 
@@ -43,6 +45,7 @@ The patient page sends `in_progress` while editing and `submitted` on a valid su
 - Staff view renders correctly on mobile and desktop.
 - Every patient field appears in the staff view.
 - Typing in the patient form updates the staff view without refresh.
+- Opening the staff view after an active patient view requests and displays the latest in-memory patient state.
 - Invalid phone and email values show clear errors.
 - Submit is disabled until the form is valid.
 - Staff status changes through no activity, in progress, idle, and submitted.
