@@ -20,7 +20,7 @@ export function PageShell({ title, eyebrow, description, sessionId, activeView, 
       <div className="fixed inset-x-0 top-0 h-1 bg-gradient-to-r from-clinic via-teal-400 to-emerald-500 z-50" />
 
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 pt-1">
-        <header className="flex flex-col gap-4 rounded-2xl border border-white/80 bg-white/75 px-4 py-4 shadow-soft backdrop-blur-md sm:px-5 md:flex-row md:items-center md:justify-between">
+        <header className="flex flex-col gap-4 rounded-2xl border border-line/70 bg-white/90 px-4 py-4 backdrop-blur-md sm:px-5 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-clinic to-emerald-600 text-white shadow-md sm:h-12 sm:w-12">
               <HeartPulse size={22} aria-hidden="true" />

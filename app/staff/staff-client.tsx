@@ -80,7 +80,7 @@ export function StaffClient() {
       sessionId={sessionId}
     >
       <div className="grid gap-6 xl:grid-cols-[22rem_1fr]">
-        <aside className="h-fit rounded-2xl border border-white/80 bg-white/80 p-5 shadow-soft backdrop-blur-sm xl:sticky xl:top-8">
+        <aside className="h-fit rounded-2xl border border-line/70 bg-white/90 p-5 backdrop-blur-sm xl:sticky xl:top-8">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-ink/40">Current status</p>
@@ -117,7 +117,7 @@ export function StaffClient() {
           </dl>
         </aside>
 
-        <section className="rounded-2xl border border-white/80 bg-white/80 p-5 shadow-soft backdrop-blur-sm">
+        <section className="rounded-2xl border border-line/70 bg-white/90 p-5 backdrop-blur-sm">
           <div className="flex flex-col gap-2 border-b border-line/50 pb-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-base font-bold text-ink">Patient details</h2>

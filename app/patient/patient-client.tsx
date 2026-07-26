@@ -349,7 +349,7 @@ export function PatientClient() {
             </div>
           )}
 
-          <div className="flex flex-col gap-3 rounded-2xl border border-white/80 bg-white/80 px-5 py-4 shadow-soft backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 rounded-2xl border border-line/70 bg-white/90 px-5 py-4 backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-ink/60">
               {validation.isValid ? "✓ Form is complete and ready to submit." : "Complete all required fields (marked *) to submit."}
             </p>
@@ -364,7 +364,7 @@ export function PatientClient() {
           </div>
         </form>
 
-        <aside className="order-1 lg:order-2 h-fit rounded-2xl border border-white/80 bg-white/80 p-4 shadow-soft backdrop-blur-sm lg:sticky lg:top-8">
+        <aside className="order-1 lg:order-2 h-fit rounded-2xl border border-line/70 bg-white/90 p-4 backdrop-blur-sm lg:sticky lg:top-8">
           {/* Mobile: horizontal compact layout */}
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
